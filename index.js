@@ -5,6 +5,7 @@ const app = express();
 app.set("json spaces", 2);
 app.use(express.json());
 app.use(cors());
+app.use(express.static("build"));
 
 let notes = [
   {
@@ -85,8 +86,8 @@ const unknownEndpoint = (request, response) => {
 
 app.use(unknownEndpoint);
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3002;
 
-app.listen(PORT || 3002, () => {
+app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
