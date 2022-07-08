@@ -27,6 +27,14 @@ let notes = [
   },
 ];
 
+const requestLogger = (request, response, next) => {
+  console.table(`Method: ${request.method}, Path: ${request.path}`);
+  console.log("Body", request.body);
+  next();
+};
+
+app.use(requestLogger);
+
 const generateId = () => {
   const maxId = notes.length === 0 ? 0 : Math.max(...notes.map((n) => n.id));
   return maxId + 1;
@@ -70,6 +78,12 @@ app.post("/api/notes", (request, response) => {
   notes = notes.concat(newNote);
   response.json(newNote);
 });
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: "unknown endpoint" });
+};
+
+app.use(unknownEndpoint);
 
 const PORT = 3002;
 app.listen(PORT, () => {
