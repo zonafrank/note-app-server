@@ -8,7 +8,7 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "build:ui": "rm -rf build && cd ../note-app && npm run build && cp -r build ../note-app-server",
-    "deploy": "git push heroku main",
+    "deploy": "git push heroku master",
     "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push origin master && npm run deploy",
     "logs:prod": "heroku logs --tail"
   },
