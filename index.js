@@ -17,13 +17,9 @@ const requestLogger = (request, response, next) => {
 
 app.use(requestLogger);
 
-const generateId = () => {
-  const maxId = notes.length === 0 ? 0 : Math.max(...notes.map((n) => n.id));
-  return maxId + 1;
-};
-
 app.get("/api/notes", async (request, response) => {
   const notes = await Note.find({});
+  console.log(notes);
   response.json(notes);
 });
 
