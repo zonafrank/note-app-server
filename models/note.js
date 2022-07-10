@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 // const url = process.env.MONGODB_URI;
-const url = `mongodb+srv://echezona:FantasyMongodbTvigt1974@cluster0.xhujs.mongodb.net/note-app?retryWrites=true&w=majority`;
+const url = process.env.MONGODB_URI;
 console.log("Connecting to database");
 
 mongoose
