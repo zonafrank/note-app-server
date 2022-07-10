@@ -28,13 +28,18 @@ app.get("/api/notes", async (request, response) => {
 });
 
 app.get("/api/notes/:id", async (request, response) => {
-  const savedNote = await Note.findById(request.params.id);
+  try {
+    const savedNote = await Note.findById(request.params.id);
 
-  if (savedNote) {
-    return response.json(savedNote);
+    if (savedNote) {
+      response.json(savedNote);
+    } else {
+      response.status(404).end();
+    }
+  } catch (error) {
+    console.log(error);
+    response.status(500).end();
   }
-
-  response.status(404).end();
 });
 
 app.delete("/api/notes/:id", (request, response) => {
