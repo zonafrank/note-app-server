@@ -50,21 +50,25 @@ app.delete("/api/notes/:id", async (request, response, next) => {
   }
 });
 
-app.post("/api/notes", async (request, response) => {
-  if (!request.body.content) {
-    return response.status(400).json({ error: "content missing" });
+app.post("/api/notes", async (request, response, next) => {
+  try {
+    if (!request.body.content) {
+      return response.status(400).json({ error: "content missing" });
+    }
+
+    const body = request.body;
+
+    const note = new Note({
+      content: body.content,
+      important: body.important || false,
+      date: new Date(),
+    });
+
+    const savedNote = await note.save();
+    response.json(savedNote);
+  } catch (error) {
+    next(error);
   }
-
-  const body = request.body;
-
-  const note = new Note({
-    content: body.content,
-    important: body.important || false,
-    date: new Date(),
-  });
-
-  const savedNote = await note.save();
-  response.json(savedNote);
 });
 
 app.put("/api/notes/:id", async (request, response, next) => {
@@ -74,7 +78,7 @@ app.put("/api/notes/:id", async (request, response, next) => {
     const updatedNote = await Note.findByIdAndUpdate(
       id,
       { content, important },
-      { new: true }
+      { new: true, runValidators: true, context: "query" }
     );
     response.json(updatedNote);
   } catch (error) {
@@ -93,6 +97,8 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === "CastError") {
     return response.status(400).send({ error: "malformatted id" });
+  } else if (error.name === "ValidationError") {
+    return response.status(400).send({ error: error.message });
   }
 
   next(error);
