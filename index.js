@@ -18,12 +18,16 @@ const requestLogger = (request, response, next) => {
 app.use(requestLogger);
 
 app.get("/api/notes", async (request, response) => {
-  const notes = await Note.find({});
-  console.log(notes);
-  response.json(notes);
+  try {
+    const notes = await Note.find({});
+    console.log(notes);
+    response.json(notes);
+  } catch (error) {
+    next(error);
+  }
 });
 
-app.get("/api/notes/:id", async (request, response) => {
+app.get("/api/notes/:id", async (request, response, next) => {
   try {
     const savedNote = await Note.findById(request.params.id);
 
@@ -33,16 +37,17 @@ app.get("/api/notes/:id", async (request, response) => {
       response.status(404).end();
     }
   } catch (error) {
-    console.log(error);
-    response.status(500).end();
+    next(error);
   }
 });
 
-app.delete("/api/notes/:id", (request, response) => {
-  const id = request.params.id;
-  notes = notes.filter((n) => n.id !== Number(id));
-
-  response.status(204).end();
+app.delete("/api/notes/:id", async (request, response, next) => {
+  try {
+    await Note.findByIdAndRemove(request.params.id);
+    response.status(204).end();
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.post("/api/notes", async (request, response) => {
@@ -62,11 +67,38 @@ app.post("/api/notes", async (request, response) => {
   response.json(savedNote);
 });
 
+app.put("/api/notes/:id", async (request, response, next) => {
+  try {
+    const { id } = request.params;
+    const { content, important } = request.body;
+    const updatedNote = await Note.findByIdAndUpdate(
+      id,
+      { content, important },
+      { new: true }
+    );
+    response.json(updatedNote);
+  } catch (error) {
+    next(error);
+  }
+});
+
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: "unknown endpoint" });
 };
 
 app.use(unknownEndpoint);
+
+const errorHandler = (error, request, response, next) => {
+  console.log(error.message);
+
+  if (error.name === "CastError") {
+    return response.status(400).send({ error: "malformatted id" });
+  }
+
+  next(error);
+};
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT;
 
