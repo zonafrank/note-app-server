@@ -17,7 +17,7 @@ const requestLogger = (request, response, next) => {
 
 app.use(requestLogger);
 
-app.get("/api/notes", async (request, response) => {
+app.get("/api/notes", async (request, response, next) => {
   try {
     const notes = await Note.find({});
     console.log(notes);
